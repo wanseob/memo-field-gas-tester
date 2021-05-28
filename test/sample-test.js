@@ -17,7 +17,7 @@ describe('MemoGasTester', function () {
     const calldataMemoV2 = dummyFunSigForFallback + dummyMemoV2.slice(2)
 
     const [signer] = await ethers.getSigners()
-    const [response1, response2] = await Promise.all([
+    const [response1, response2, ref] = await Promise.all([
       signer.sendTransaction({
         to: tester.address,
         data: calldataMemoV1,
@@ -26,10 +26,15 @@ describe('MemoGasTester', function () {
         to: tester.address,
         data: calldataMemoV2,
       }),
+      signer.sendTransaction({
+        to: tester.address,
+        data: dummyFunSigForFallback,
+      }),
     ])
-    const [receipt1, receipt2] = await Promise.all([response1.wait(), response2.wait()])
-    const v1Cost = receipt1.gasUsed.toNumber()
-    const v2Cost = receipt2.gasUsed.toNumber()
+    const [receipt1, receipt2, refReceipt] = await Promise.all([response1.wait(), response2.wait(), ref.wait()])
+    const refCost = refReceipt.gasUsed.toNumber()
+    const v1Cost = receipt1.gasUsed.toNumber() - refCost
+    const v2Cost = receipt2.gasUsed.toNumber() - refCost
     console.log('v1:', v1Cost)
     console.log('v2:', v2Cost)
     console.log('diff:', v2Cost - v1Cost)

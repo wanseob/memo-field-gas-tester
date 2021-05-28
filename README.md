@@ -8,7 +8,7 @@ yarn test # run test
 
 ```.shell
 MemoGasTester
-v1: 24698
-v2: 25038
+v1: 1296
+v2: 1636
 diff: 340
 ```
